@@ -4,6 +4,16 @@ This project demnostrates an example of a erouneous import of glb into vtk
 
 ## How to run
 
+### Make python environment with UV
+
+```bash
+uv venv
+./.venv/Scripts/activate
+uv sync
+```
+
+### Run script
+
 To run the script with default settings (showing colors for `suzanne.glb`):
 ```bash
 python glb_viewer.py
