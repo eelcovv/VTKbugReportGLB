@@ -8,9 +8,16 @@ def main():
     reader.SetFileName("suzanne.glb")
     reader.Update()
 
+    # As the vtkGLTFReader can output a vtkMultiBlockDataSet, we need to
+    # use a vtkCompositeDataGeometryFilter to extract the polygonal data.
+    polydata_filter = vtk.vtkCompositeDataGeometryFilter()
+    polydata_filter.SetInputConnection(reader.GetOutputPort())
+    polydata_filter.Update()
+
     # Create a mapper
     mapper = vtk.vtkPolyDataMapper()
-    mapper.SetInputConnection(reader.GetOutputPort())
+    mapper.SetInputConnection(polydata_filter.GetOutputPort())
+    mapper.SetScalarVisibility(False)
 
     # Create an actor
     actor = vtk.vtkActor()
@@ -34,7 +41,8 @@ def main():
     # Set up the camera
     renderer.ResetCamera()
 
-    # Start the interaction
+    # Render and start interaction
+    render_window.Render()
     interactor.Initialize()
     interactor.Start()
 
