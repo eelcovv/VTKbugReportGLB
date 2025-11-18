@@ -1,89 +1,72 @@
 import vtk
 
 
-def import_glb_from_data():
-    print("Hello from vtkbugreportglb!")
-    # Create a reader for the GLB file
+def setup_grey_actor():
+    """
+    Sets up a grey actor from the GLB file using vtkGLTFReader.
+    """
     reader = vtk.vtkGLTFReader()
     reader.SetFileName("suzanne.glb")
-    reader.Update()
 
-    # As the vtkGLTFReader can output a vtkMultiBlockDataSet, we need to
-    # use a vtkCompositeDataGeometryFilter to extract the polygonal data.
     polydata_filter = vtk.vtkCompositeDataGeometryFilter()
     polydata_filter.SetInputConnection(reader.GetOutputPort())
-    polydata_filter.Update()
 
-    # Create a mapper
     mapper = vtk.vtkPolyDataMapper()
     mapper.SetInputConnection(polydata_filter.GetOutputPort())
-    mapper.SetScalarVisibility(False)
+    mapper.SetScalarVisibility(False)  # This makes the actor grey
 
-    # Create an actor
     actor = vtk.vtkActor()
     actor.SetMapper(mapper)
-
-    # Create a renderer
-    renderer = vtk.vtkRenderer()
-    renderer.AddActor(actor)
-    renderer.SetBackground(0.1, 0.2, 0.4)  # Set background color
-
-    # Create a render window
-    render_window = vtk.vtkRenderWindow()
-    render_window.AddRenderer(renderer)
-    render_window.SetSize(800, 600)
-    render_window.SetWindowName("Suzanne GLB Visualization")
-
-    # Create a render window interactor
-    interactor = vtk.vtkRenderWindowInteractor()
-    interactor.SetRenderWindow(render_window)
-
-    # Set up the camera
-    renderer.ResetCamera()
-
-    # Render and start interaction
-    render_window.Render()
-    interactor.Initialize()
-    interactor.Start()
+    return actor
 
 
-def import_glb():
-    print("Hello from vtkbugreportglb!")
-
-    # Create a renderer and a render window
-    renderer = vtk.vtkRenderer()
-    renderer.SetBackground(0.1, 0.2, 0.4)  # Set background color
-
-    render_window = vtk.vtkRenderWindow()
-    render_window.AddRenderer(renderer)
-    render_window.SetSize(800, 600)
-    render_window.SetWindowName("Suzanne GLB Visualization")
-
-    # Create a render window interactor
-    interactor = vtk.vtkRenderWindowInteractor()
-    interactor.SetRenderWindow(render_window)
-
-    # Use vtkGLTFImporter to load the scene
+def setup_colored_scene(renderer, render_window):
+    """
+    Sets up the scene with colors and textures using vtkGLTFImporter.
+    """
     importer = vtk.vtkGLTFImporter()
     importer.SetFileName("suzanne.glb")
     importer.SetRenderWindow(render_window)
     importer.Update()
 
-    # Reset camera to frame the scene
-    renderer.ResetCamera()
-
-    # Render and start interaction
-    render_window.Render()
-    interactor.Start()
-
 
 def main():
-    show_colors = True
+    """
+    Main function to set up the VTK scene and render the GLB file.
+    """
+    print("Hello from vtkbugreportglb!")
 
+    # --- CONFIGURATION ---
+    show_colors = False  # Set to False to display a grey monkey
+
+    # --- COMMON SETUP ---
+    # Create a renderer, render window, and interactor
+    renderer = vtk.vtkRenderer()
+    renderer.SetBackground(0.1, 0.2, 0.4)
+
+    render_window = vtk.vtkRenderWindow()
+    render_window.AddRenderer(renderer)
+    render_window.SetSize(800, 600)
+    render_window.SetWindowName("Suzanne GLB Visualization")
+
+    interactor = vtk.vtkRenderWindowInteractor()
+    interactor.SetRenderWindow(render_window)
+
+    # --- MODEL LOADING ---
+    # Load the model based on the show_colors flag
     if show_colors:
-        import_glb()
+        # vtkGLTFImporter populates the renderer directly
+        setup_colored_scene(renderer, render_window)
     else:
-        import_glb_from_data()
+        # vtkGLTFReader provides an actor that we must add to the renderer
+        actor = setup_grey_actor()
+        renderer.AddActor(actor)
+
+    # --- FINALIZATION ---
+    # Reset camera, render, and start interaction
+    renderer.ResetCamera()
+    render_window.Render()
+    interactor.Start()
 
 
 if __name__ == "__main__":
