@@ -170,3 +170,5 @@ cython_debug/
 /.envrc
 .README.md.swp
 /.deps.tmp
+output.png
+TexturedMonkey.png
